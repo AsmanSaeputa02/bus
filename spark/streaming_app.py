@@ -4,7 +4,7 @@ Spark Streaming Application
 """
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, from_json, struct
+from pyspark.sql.functions import col, from_json, struct,date_format,to_utc_timestamp
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType, FloatType
 
 def main():
@@ -64,7 +64,15 @@ def main():
     es_df = processed_df.withColumn(
         "location", 
         struct(col("lat"), col("lon"))
+    ).withColumn(
+        "timestamp",
+        date_format(
+            to_utc_timestamp(col("timestamp"), "Asia/Bangkok"), # <--- แปลงเป็น UTC ที่นี่
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        )
     )
+
+
     
     print("✅ Elasticsearch DataFrame created.")
     es_df.printSchema()
